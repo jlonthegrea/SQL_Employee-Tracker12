@@ -13,7 +13,6 @@ VALUES
 ('Lead Engineer', 150000, 4),
 ('Project Manager', 100000, 5);
 
-
 INSERT INTO employee(first_name, last_name, role_id, manager_id)
 VALUES
 ('Sam', 'Wilson', 3, 1),
