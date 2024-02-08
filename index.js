@@ -64,3 +64,192 @@ const userQuestions = () => {
         }
     });
 };
+
+const viewDepartments = () => {
+    const sql = `SELECT department.id AS id, department.name AS department FROM department`;
+    connection.promise().query(sql)
+    .then((rows) => {
+        console.log(rows)
+    })
+    .catch((err) => {
+        console.error(err);
+    });
+};
+
+const viewRoles = () => {
+    const sql = `SELECT role.id, role.title, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id`;
+    connection.promise().query(sql)
+    .then((rows) => {
+        console.log(rows)
+    })
+    .catch((err) => {
+        console.error(err);
+    })
+    userQuestions();
+};
+
+const viewEmployees = () => {
+    const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id`;
+    connection.promise().query(sql)
+    .then((rows) => {
+        console.log(rows)
+    })
+    .catch((err) => {
+        console.error(err);
+    })
+    userQuestions();
+};
+
+const addDepartment = () => {
+    inquirer
+    .prompt([
+        {
+            type: 'input',
+            name:'addedDEPT',
+            message: "Please input the department name you would like to add:",
+            validate: addedDEPT => {
+                if (addedDEPT) {
+                    return true;
+                } else {
+                    console.log('Please enter a department name!');
+                    return false;
+                }
+            }
+        } 
+    ])
+    .then((obj) => {
+        const { addedDEPT } = obj;
+        const sql = `INSERT INTO department (name) VALUES (?)`;
+        connection.query(sql, answer.addedDEPT, (err, result) => {
+            if (err) throw err;
+            console.log('Added' + obj.addedDEPT + ' to departments!');
+            viewDepartments();
+        });
+    });
+};
+
+const addRole = async () => {
+    let roleTitle;
+    let salary;
+    let array = [];
+    await inquirer
+    .prompt([
+        {
+            type: 'input',
+            name: 'title',
+            message: "Please input the role you would like to add: ",
+            validate: addRole => {
+                if (addRole) {
+                    return true;
+                } else {
+                    console.log('Please add a role!');
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'bread',
+            message: "Please input the salary for this role: ",
+            validate: addSalary => {
+                if (isNaN(addSalary)) {
+                    return true;
+                } else {
+                    console.log('Please enter a salary amount!');
+                    return false;
+                }
+            }
+        },
+    ])
+    .then((obj) => {
+        const { title, bread } = obj;
+        roleTitle = title;
+        salary = bread;
+});
+connection.query(
+    "SELECT * FROM `department`",
+    function (err, results, fields) {
+        results.forEach((element) => {
+            array.push(element.department);
+        });
+        inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'department',
+                message: "Please select which department this role belongs to: ",
+                choices: array
+            },
+        ])
+        .then((obj) => {
+            const { department } = obj;
+            let id;
+            connection.query("SELECT id FROM `department` WHERE department = ?", [department], function (err, results, fields) {
+                id = results[0].id;
+                connection.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)" [roleTitle, salary, id], function (err, results, fields) {
+                    console.dir("=====================");
+                    console.dir(`Added ${roleTitle} to the database.`);
+                    console.dir("=====================");
+                    userQuestions();
+                });
+            });
+    });
+});
+};
+
+const addEmployee = () => {
+    
+}
+
+const updateRole = () => {
+    let array = [];
+    connection.query("SELECT first_name, last_name FROM `employee`", function (err, results, fields) {
+      results.forEach((element) => {
+        array.push(`${element.first_name} ${element.last_name}`);
+      });
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "employee",
+            message: "Please choose which employee to update: ",
+            choices: array,
+          },
+        ])
+        .then((obj) => {
+          const { employee } = obj;
+          let employeeId;
+          const fullName = employee.split(" ");
+          connection.query("SELECT title FROM `role` ", function (err, results, fields) {
+            array = [];
+            results.forEach((element) => {
+              array.push(`${element.title}`);
+            });
+            inquirer
+              .prompt([
+                {
+                  type: "list",
+                  name: "role",
+                  message: "Please choose which role to assign to the employee: ",
+                  choices: array,
+                },
+              ])
+              .then((obj) => {
+                const { role } = obj;
+                connection.query("SELECT id FROM `role` WHERE title = ? ", [role], function (err, results, fields) {
+                  connection.query(
+                    "UPDATE `employee` SET role_id = ? WHERE first_name = ? AND last_name = ? ",
+                    [results[0].id, fullName[0], fullName[1]],
+                    function (err, results, fields) {
+                      userQuestions();
+                    }
+                  );
+                });
+              });
+          });
+        });
+    });
+  };
+
+
+
