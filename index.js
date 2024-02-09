@@ -221,7 +221,7 @@ const addEmployee = () => {
         const { fN, lN } = obj;
         firstName = fN;
         lastName = lN;
-        connection.query("SELECT title FROM `role`", function (err, results, fields) {
+        connection.query("SELECT title FROM `role`", (err, results, fields) => {
             results.forEach((element) => {
                 array.push(element.title);
             });
@@ -236,11 +236,35 @@ const addEmployee = () => {
             ]) 
             .then((obj) => {
                 const { role } = obj;
-                connection.query("SELECT id FROM `role` WHERE title =?", [role], function (err, results, fields) => {
+                connection.query("SELECT id FROM `role` WHERE title =?", [role], (err, results, fields) => {
                     array = ["None"];
                     results.forEach((element) => {
                         array.push(`${element.first_name} ${element.last_name}`);
                     });
+                    inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'manager',
+                            message: "Please indiacte which manager this employee is under: ",
+                            choices: array,
+                        },
+                    ])
+                    .then((obj) => {
+                        const { manager } = obj;
+                        let managerId;
+                        if (manager === "None" {
+                            managerId = null;
+                        } else {
+                            const fullName = manager.split(" ");
+                            connection.query("SELECT id FROM `employee` WHERE first_name = ? AND last_name = ?", [fullName[0], fullName[1]], (err, results, fields) => {
+                                managerId = results[0].id;
+                                connection.query("INSERT INTO eomployee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [firstName, lastName, roleId, managerId], (err, results, fields) => {
+                                    userQuestions();
+                                })
+                            } )
+                        })
+                    })
                 });
             });
         });
