@@ -253,23 +253,24 @@ const addEmployee = () => {
                     .then((obj) => {
                         const { manager } = obj;
                         let managerId;
-                        if (manager === "None" {
+                        if (manager === "None") {
                             managerId = null;
                         } else {
                             const fullName = manager.split(" ");
                             connection.query("SELECT id FROM `employee` WHERE first_name = ? AND last_name = ?", [fullName[0], fullName[1]], (err, results, fields) => {
                                 managerId = results[0].id;
-                                connection.query("INSERT INTO eomployee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [firstName, lastName, roleId, managerId], (err, results, fields) => {
+                                connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [firstName, lastName, roleId, managerId], (err, results, fields) => {
                                     userQuestions();
                                 })
-                            } )
+                            })
+                        }
                         })
                     })
                 });
             });
         });
-    });
-};
+    };
+
 
 const updateRole = () => {
     let array = [];
