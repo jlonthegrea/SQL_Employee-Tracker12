@@ -198,8 +198,54 @@ connection.query(
 };
 
 const addEmployee = () => {
-    
-}
+    let firstName;
+    let lastName;
+    let roleId;
+    let managerId;
+    let array = [];
+
+    inquirer
+    prompt([
+        {
+            type: 'input',
+            name: 'fN',
+            message: "Please input the employee's first name: ",
+        },
+        {
+            type: 'input',
+            name: 'lN',
+            message: "Please input the employee's last name: "
+        },
+    ])
+    .then((obj) => {
+        const { fN, lN } = obj;
+        firstName = fN;
+        lastName = lN;
+        connection.query("SELECT title FROM `role`", function (err, results, fields) {
+            results.forEach((element) => {
+                array.push(element.title);
+            });
+            inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: "Please select the role of this employee: ",
+                    choices: array,
+                },
+            ]) 
+            .then((obj) => {
+                const { role } = obj;
+                connection.query("SELECT id FROM `role` WHERE title =?", [role], function (err, results, fields) => {
+                    array = ["None"];
+                    results.forEach((element) => {
+                        array.push(`${element.first_name} ${element.last_name}`);
+                    });
+                });
+            });
+        });
+    });
+};
 
 const updateRole = () => {
     let array = [];
