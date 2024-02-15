@@ -140,31 +140,18 @@ const addRole = async () => {
                 type: 'input',
                 name: 'title',
                 message: "Please input the role you would like to add: ",
-                validate: addRole => {
-                    if (addRole) {
-                        return true;
-                    } else {
-                        console.log('Please add a role!');
-                        return false;
-                    }
-                }
             },
             {
                 type: 'input',
                 name: 'bread',
                 message: "Please input the salary for this role: ",
-                validate: addSalary => {
-                    if (!isNaN(addSalary)) {
-                        return true;
-                    } else {
-                        console.log('Please enter a salary amount!');
-                        return false;
-                    }
-                }
+
             },
         ])
         .then((obj) => {
             const { title, bread } = obj;
+            roleTitle = title;
+            salary = bread;
             connection.query(
                 "SELECT * FROM `department`",
                 function (err, results, fields) {
@@ -200,7 +187,6 @@ const addRole = async () => {
         })
 };
 
-
 const addEmployee = () => {
     let firstName;
     let lastName;
@@ -209,7 +195,7 @@ const addEmployee = () => {
     let array = [];
 
     inquirer
-    prompt([
+    .prompt([
         {
             type: 'input',
             name: 'fN',
@@ -274,8 +260,6 @@ const addEmployee = () => {
         });
 };
 
-
-
 const updateRole = () => {
     let array = [];
     connection.query("SELECT first_name, last_name FROM `employee`", function (err, results, fields) {
@@ -325,3 +309,6 @@ const updateRole = () => {
 
 
 
+
+
+  
