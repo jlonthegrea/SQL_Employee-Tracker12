@@ -224,8 +224,8 @@ const addEmployee = () => {
                 name: 'manager',
                 message: "Please indiacte which manager this employee is under: ",
             },
-        ]).then(answers) => {
-            for (var = 0; i< results.length; i++) {
+        ]).then((answers) => {
+            for (var i = 0; i < results.length; i++) {
                 if (results[i].title === answers.role) {
                     var role = results[i];
                 }
@@ -235,58 +235,63 @@ const addEmployee = () => {
                 console.log(`Added ${answers.fN} ${answers.lN} to the datadbase.`)
                 userQuestions();
             });
-        }
+        })
     });
 };
-
-
-
 
 const updateRole = () => {
     let array = [];
-    connection.query("SELECT first_name, last_name FROM `employee`", function (err, results, fields) {
-        results.forEach((element) => {
-            array.push(`${element.first_name} ${element.last_name}`);
-        });
-        inquirer
-            .prompt([
-                {
-                    type: "list",
-                    name: "employee",
-                    message: "Please choose which employee to update: ",
-                    choices: array,
-                },
-            ])
-            .then((obj) => {
-                const { employee } = obj;
-                let employeeId;
-                const fullName = employee.split(" ");
-                connection.query("SELECT title FROM `role` ", function (err, results, fields) {
-                    inquirer
-                        .prompt([
-                            {
-                                type: "list",
-                                name: "role",
-                                message: "Please choose which role to assign to the employee: ",
-                                choices: array,
-                            },
-                        ])
-                })
-                    .then((obj) => {
-                        const { role } = obj;
-                        connection.query("SELECT id FROM `role` WHERE title = ? ", [role], function (err, results, fields) {
-                            connection.query(
-                                "UPDATE `employee` SET role_id = ? WHERE first_name = ? AND last_name = ? ",
-                                [results[0].id, fullName[0], fullName[1]],
-                                function (err, results, fields) {
-                                    userQuestions();
-                                }
-                            );
-                        });
-                    });
+    connection.query(`SELECT * FROM employee, role`, (err, results) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "employee",
+                message: "Please choose which employee to update: ",
+                choices: () => {
+                    var array = [];
+                    for (var i = 0; i < results.length; i++) {
+                        array.push(results[i].last_name);
+                    }
+                    var employeeArray = [...new Set(array)];
+                    return employeeArray;
+                }
+            },
+            {
+                type: "list",
+                name: "role",
+                message: "What is this employee's new role? ",
+                choices: () => {
+                    var array = [];
+                    for (var i = 0; i < results.length; i++) {
+                        array.push(results[i].title);
+                    }
+                    var newArray = [...new Set(array)];
+                    return newArray;
+                }
+            }
+        ]).then((answers) => {
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].last_name === answers.employee) {
+                    var name = results[i];
+                }
+            }
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].title === answers.role) {
+                    var role = results[i];
+                }
+            }
+            connection.query(`UPDATE employee SET ? WHERE ?`, [{role_id: role}, {last_name: name}], (err,results) => {
+                if (err) throw err;
+                console.log(`Updated ${answers.employee} role to the database.`)
+                userQuestions();
             });
+        })
     });
 };
+
+
 
 
 
