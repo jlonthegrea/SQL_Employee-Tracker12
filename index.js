@@ -193,72 +193,54 @@ const addEmployee = () => {
     let roleId;
     let managerId;
     let array = [];
+    connection.query(`SELECT * FROM employee, role`, (err, results) => {
+        if (err) throw err;
 
-    inquirer
-    .prompt([
-        {
-            type: 'input',
-            name: 'fN',
-            message: "Please input the employee's first name: ",
-        },
-        {
-            type: 'input',
-            name: 'lN',
-            message: "Please input the employee's last name: "
-        },
-    ])
-        .then((obj) => {
-            const { fN, lN } = obj;
-            firstName = fN;
-            lastName = lN;
-            connection.query("SELECT title FROM `role`", (err, results, fields) => {
-                // results.forEach((element) => {
-                //     array.push(element.title);
-                inquirer
-                    .prompt([
-                        {
-                            type: 'list',
-                            name: 'role',
-                            message: "Please select the role of this employee: ",
-                            choices: array,
-                        },
-                    ])
-            })
-                .then((obj) => {
-                    const { role } = obj;
-                    connection.query("SELECT id FROM `role` WHERE title =?", [role], (err, results, fields) => {
-                        array = ["None"];
-                        results.forEach((element) => {
-                            array.push(`${element.first_name} ${element.last_name}`);
-                        });
-                        inquirer
-                            .prompt([
-                                {
-                                    type: 'list',
-                                    name: 'manager',
-                                    message: "Please indiacte which manager this employee is under: ",
-                                    choices: array,
-                                },
-                            ])
-                            .then((obj) => {
-                                const { manager } = obj;
-                                let managerId;
-                                if (manager === "None") {
-                                    managerId = null;
-                                } else {
-                                    const fullName = manager.split(" ");
-                                    connection.query("SELECT id FROM `employee` WHERE first_name = ? AND last_name = ?", [fullName[0], fullName[1]], (err, results, fields) => {
-                                        managerId = results[0].id;
-                                        connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [firstName, lastName, roleId, managerId], (err, results, fields) => {
-                                            userQuestions();
-                                        })
-                                    })
-                                }
-                            })
-                    })
-                });
-        });
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'fN',
+                message: "Please input the employee's first name: ",
+            },
+            {
+                type: 'input',
+                name: 'lN',
+                message: "Please input the employee's last name: "
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: "What is this employee's role? ",
+                choices: () => {
+                    for (var i = 0; i < results.length; i++) {
+                        array.push(results[i].title);
+                    }
+                    var newArray = [...new Set(array)];
+                    return newArray;
+                },
+            },
+            {
+                type: 'input',
+                name: 'manager',
+                message: "Please indiacte which manager this employee is under: ",
+            },
+        ]).then(answers) => {
+            for (var = 0; i< results.length; i++) {
+                if (results[i].title === answers.role) {
+                    var role = results[i];
+                }
+            }
+            connection.query(`INSERT INTO employee (first_name. last_name, role_id, manager_id) VALUE (?, ?, ?, ?)`, [answers.fN, answers.lN, role.id, answers.manger.id], (err, results) => {
+                if (err) throw err;
+                console.log(`Added ${answers.fN} ${answers.lN} to the datadbase.`)
+                userQuestions();
+            });
+        }
+    });
 };
+
+
+
 
 const updateRole = () => {
     let array = [];
@@ -311,4 +293,3 @@ const updateRole = () => {
 
 
 
-  
