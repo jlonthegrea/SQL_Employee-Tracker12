@@ -222,7 +222,7 @@ const addEmployee = () => {
             {
                 type: 'input',
                 name: 'manager',
-                message: "Please indiacte which manager this employee is under: ",
+                message: "Please indiacte which manager id this employee is under: ",
             },
         ]).then((answers) => {
             for (var i = 0; i < results.length; i++) {
@@ -230,7 +230,7 @@ const addEmployee = () => {
                     var role = results[i];
                 }
             }
-            connection.query(`INSERT INTO employee (first_name. last_name, role_id, manager_id) VALUE (?, ?, ?, ?)`, [answers.fN, answers.lN, role.id, answers.manger.id], (err, results) => {
+            connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUE (?, ?, ?, ?)`, [answers.fN, answers.lN, role.id, answers.manger_id], (err, results) => {
                 if (err) throw err;
                 console.log(`Added ${answers.fN} ${answers.lN} to the datadbase.`)
                 userQuestions();
