@@ -69,7 +69,7 @@ const viewDepartments = () => {
     const sql = `SELECT department.id AS id, department.name AS department FROM department`;
     connection.promise().query(sql)
         .then((rows) => {
-            console.log(rows)
+            console.table(rows[0])
             userQuestions();
         })
         .catch((err) => {
@@ -81,7 +81,7 @@ const viewRoles = () => {
     const sql = `SELECT role.id, role.title, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id`;
     connection.promise().query(sql)
         .then((rows) => {
-            console.log(rows)
+            console.table(rows[0])
             userQuestions();
         })
         .catch((err) => {
@@ -93,7 +93,7 @@ const viewEmployees = () => {
     const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id`;
     connection.promise().query(sql)
         .then((rows) => {
-            console.log(rows)
+            console.table(rows[0])
             userQuestions();
         })
         .catch((err) => {
