@@ -136,7 +136,6 @@ const addRole = () => {
     let array = [];
 
     connection.query(`SELECT * FROM department`, (err, results) => {
-        if (err) throw err;
         inquirer.prompt([
             {
                 type: 'input',
